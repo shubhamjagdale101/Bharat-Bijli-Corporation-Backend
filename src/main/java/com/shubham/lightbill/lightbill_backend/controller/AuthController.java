@@ -49,7 +49,7 @@ public class AuthController {
 
     @WithRateLimitProtection(rateLimit = 20, rateDuration = 60000)
     @GetMapping("/verifyOtp")
-    public ApiResponse<User> verifyOtp(
+    public ApiResponse<String> verifyOtp(
             @RequestParam("userId") String userId,
             @RequestParam("otpType") @ValidEnum(enumClass = OtpType.class) String otpType,
             @RequestParam("otp") String otp,
@@ -62,7 +62,7 @@ public class AuthController {
         String token = jwtUtil.generateToken(userId, String.valueOf(user.getRole()));
         Cookie cookie = authservice.generateCookie("Bearer-token", token.trim());
         response.addCookie(cookie);
-        return ApiResponse.success(user, URLEncoder.encode(token), HttpStatus.OK.value());
+        return ApiResponse.success("", URLEncoder.encode(token), HttpStatus.OK.value());
     }
 
     @PostMapping("/signUpUser")

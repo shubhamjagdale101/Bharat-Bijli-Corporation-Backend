@@ -55,9 +55,9 @@ public class BillService {
         return billRepository.save(bill);
     }
 
-    public List<Bill> getBillsUsingPagination(Pageable pageable){
+    public Page<Bill> getBillsUsingPagination(Pageable pageable){
         Page<Bill> page = billRepository.findAll(pageable);
-        return page.getContent();
+        return page;
     }
 
     public List<Bill> getBillsWithUserIdUsingPagination(String userId, Pageable pageable){

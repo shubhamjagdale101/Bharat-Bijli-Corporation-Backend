@@ -62,7 +62,7 @@ public class EmployeeController {
     ) throws Exception {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<Transaction> result = employeeService.getTransactionByFilterWithPagination(filterBy, filterValue, pageable);
-        return ApiResponse.success(result, "", HttpStatus.OK.value());
+        return ApiResponse.success(result.getContent(), ((Integer) result.getTotalPages()).toString(), HttpStatus.OK.value());
     }
 
     @GetMapping("/getBills")
@@ -71,8 +71,8 @@ public class EmployeeController {
             @RequestParam(name = "size", defaultValue = "10") int pageSize
     ){
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        List<Bill> result = billService.getBillsUsingPagination(pageable);
-        return ApiResponse.success(result, "", HttpStatus.OK.value());
+        Page<Bill> result = billService.getBillsUsingPagination(pageable);
+        return ApiResponse.success(result.getContent(), ((Integer) result.getTotalPages()).toString(), HttpStatus.OK.value());
     }
 
     @GetMapping("/getCustomers")
@@ -81,8 +81,8 @@ public class EmployeeController {
             @RequestParam(name = "size", defaultValue = "10") int pageSize
     ){
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        List<User> result = employeeService.getUserWithCustomerRoleWithPagination(pageable);
-        return ApiResponse.success(result, "", HttpStatus.OK.value());
+        Page<User> result = employeeService.getUserWithCustomerRoleWithPagination(pageable);
+        return ApiResponse.success(result.getContent(), ((Integer) result.getTotalPages()).toString(), HttpStatus.OK.value());
     }
 
     @GetMapping("/getCustomersByFilter")
@@ -93,8 +93,8 @@ public class EmployeeController {
     ) throws Exception {
         List<Object> res = new ArrayList<>();
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        List<User> result = employeeService.getUserWithCustomerRoleByStatus(isActiveStatus, pageable);
-        return ApiResponse.success(result, "", HttpStatus.OK.value());
+        Page<User> result = employeeService.getUserWithCustomerRoleByStatus(isActiveStatus, pageable);
+        return ApiResponse.success(result.getContent(), ((Integer) result.getTotalPages()).toString(), HttpStatus.OK.value());
     }
 
     @GetMapping("/getEmployeeProfile")

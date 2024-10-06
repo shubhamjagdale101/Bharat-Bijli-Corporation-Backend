@@ -47,8 +47,8 @@ public class CustomerController {
     ){
         String userId = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        List<Bill> result = billService.getBillsUsingPagination(pageable);
-        return ApiResponse.success(result, "", HttpStatus.OK.value());
+        Page<Bill> result = billService.getBillsUsingPagination(pageable);
+        return ApiResponse.success(result.getContent(), ((Integer) result.getTotalPages()).toString(), HttpStatus.OK.value());
     }
 
     @GetMapping("/getTransactions")

@@ -34,9 +34,9 @@ public class EmployeeService {
         return billService.addBill(req);
     }
 
-    public List<User> getUserWithCustomerRoleWithPagination(Pageable pageable){
+    public Page<User> getUserWithCustomerRoleWithPagination(Pageable pageable){
         Page<User> page = userRepository.findByRole(Role.CUSTOMER, pageable);
-        return page.getContent();
+        return page;
     }
 
     public User getEmployeeProfile(String userId){
@@ -51,11 +51,11 @@ public class EmployeeService {
         return userRepository.findByRoleAndIsActive(Role.CUSTOMER,false, pageable);
     }
 
-    public List<User> getUserWithCustomerRoleByStatus(Boolean status, Pageable pageble) throws Exception {
+    public Page<User> getUserWithCustomerRoleByStatus(Boolean status, Pageable pageble) throws Exception {
         Page<User> page = null;
         if(status) page = getCustomerWithActiveStatus(pageble);
         else page = getCustomerWithInactiveStatus(pageble);
-        return page.getContent();
+        return page;
     }
 
     public Page<Transaction> getTransactionByFilterWithPagination(String filterBy, String filterValue, Pageable pageable) throws Exception {
