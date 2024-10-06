@@ -7,6 +7,7 @@ import com.shubham.lightbill.lightbill_backend.model.Bill;
 import com.shubham.lightbill.lightbill_backend.model.User;
 import com.shubham.lightbill.lightbill_backend.repository.BillRepository;
 import com.shubham.lightbill.lightbill_backend.repository.UserRepository;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,7 +33,7 @@ public class BillService {
         return unitConsumptionOfElectricity * 10;
     }
 
-    public Bill addBill(BillDto req) throws Exception {
+    public Bill addBill(@Valid BillDto req) throws Exception {
         User user = userRepository.findByUserId(req.getUserId());
         if(user.getRole() == Role.EMPLOYEE) throw new Exception("Bill should be created for Customer only");
 
@@ -42,7 +43,7 @@ public class BillService {
         int amount = getAmountForConsumption(req.getUnitConsumption());
         Bill bill = Bill.builder()
                 .meterNumber(user.getMeterNumber())
-                .billId(idGeneratorService.generateId(Bill.class.getName(), "Bill"))
+                .billId(idGeneratorService.generateId(Bill.class.getName()))
                 .amount(amount)
                 .discount(getDiscountAmount(amount))
                 .monthOfTheBill(req.getMonthOfTheBill())

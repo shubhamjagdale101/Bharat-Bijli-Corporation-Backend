@@ -48,10 +48,6 @@ public class User {
     @JsonIgnoreProperties(value = {"user"})
     private Wallet wallet;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties(value = {"user", "txnList"})
-    private List<Bill> bills;
-
     @Column(nullable = false)
     private Boolean isActive;
 

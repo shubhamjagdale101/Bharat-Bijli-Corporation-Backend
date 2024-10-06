@@ -1,10 +1,7 @@
 package com.shubham.lightbill.lightbill_backend.constants;
 
 public enum TransactionStatus {
-    SUCCESS,
-    PENDING,
+    PAID,
     FAILED,
-    CANCELED,
-    DECLINED,
-    EXPIRED;
+    PENDING;
 }

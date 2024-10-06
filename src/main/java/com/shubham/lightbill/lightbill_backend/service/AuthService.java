@@ -62,12 +62,13 @@ public class AuthService {
         cookie.setSecure(false);   // Set to false for HTTP
         cookie.setPath("/");       // Cookie accessible to the whole application
         cookie.setMaxAge(60 * 60); // Set cookie expiry (1 hour)
+        cookie.setDomain("localhost");
         return cookie;
     }
 
     public User generateUser(SignUpDto req, Role role){
         User user = User.builder()
-                .userId(idGeneratorService.generateId(User.class.getName(), String.valueOf(role)))
+                .userId(idGeneratorService.generateId(User.class.getName()))
                 .name(req.getName())
                 .email(req.getEmail())
                 .phNo(req.getPhNo())
@@ -81,7 +82,7 @@ public class AuthService {
 
     public Wallet generateWallet(User user){
         Wallet wallet = Wallet.builder()
-                .walletId(idGeneratorService.generateId(Wallet.class.getName(), "Wallet"))
+                .walletId(idGeneratorService.generateId(Wallet.class.getName()))
                 .user(user)
                 .status(WalletStatus.ACTIVE)
                 .balance(0)
@@ -89,16 +90,16 @@ public class AuthService {
         return walletRepository.save(wallet);
     }
 
-    public User signUpUser(SignUpDto req, Role role){
+    public User signUpUser(@Valid SignUpDto req, Role role) throws Exception {
         User currUser = userRepository.findByEmail(req.getEmail());
-        if(currUser != null) return currUser;
+        if(currUser != null) throw new Exception(("User already Exists"));
 
         User user = generateUser(req, role);
 
         if(user.getRole() == Role.CUSTOMER){
             Wallet wallet = generateWallet(user);
             user.setWallet(wallet);
-            user.setMeterNumber(idGeneratorService.generateId("METER", "Meter"));
+            user.setMeterNumber(idGeneratorService.generateId("METER"));
             userRepository.save(user);
         }
 

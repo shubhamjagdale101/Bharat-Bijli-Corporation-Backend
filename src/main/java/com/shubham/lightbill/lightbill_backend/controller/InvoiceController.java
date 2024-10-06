@@ -15,6 +15,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/invoice")
+@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 public class InvoiceController {
     @Autowired
     private PdfService pdfService;

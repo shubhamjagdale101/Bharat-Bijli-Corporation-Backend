@@ -45,9 +45,6 @@ public class Bill {
     @Column(nullable = false)
     private String meterNumber;
 
-    @OneToMany(mappedBy = "bill", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Transaction> txnList;
-
     @Enumerated(value = EnumType.STRING)
     private PaymentStatus paymentStatus;
 }

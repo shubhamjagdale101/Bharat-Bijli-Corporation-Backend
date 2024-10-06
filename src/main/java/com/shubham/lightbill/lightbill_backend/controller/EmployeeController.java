@@ -2,6 +2,7 @@ package com.shubham.lightbill.lightbill_backend.controller;
 
 import com.shubham.lightbill.lightbill_backend.dto.BillDto;
 import com.shubham.lightbill.lightbill_backend.dto.FilterDto;
+import com.shubham.lightbill.lightbill_backend.dto.SignUpDto;
 import com.shubham.lightbill.lightbill_backend.model.Bill;
 import com.shubham.lightbill.lightbill_backend.model.Transaction;
 import com.shubham.lightbill.lightbill_backend.model.User;
@@ -22,10 +23,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
 @RequestMapping("/employee")
+@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 public class EmployeeController {
     @Autowired
     private EmployeeService employeeService;
@@ -35,7 +38,7 @@ public class EmployeeController {
     private BillService billService;
 
     @PostMapping("/addBill")
-    public ApiResponse<Bill> addBill(@Valid @RequestBody BillDto req) throws Exception {
+    public ApiResponse<Bill> addBill(@RequestBody BillDto req) throws Exception {
         Bill bill = employeeService.addBill(req);
         return ApiResponse.success(bill, "Bill get Added Successfully", 200);
     }
@@ -99,5 +102,11 @@ public class EmployeeController {
         String userId = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         User employeeProfile = employeeService.getEmployeeProfile(userId);
         return ApiResponse.success(employeeProfile, "", 100);
+    }
+
+    @GetMapping("/update")
+    public ApiResponse<User> updateProfile(@RequestBody Map<String, Object> req){
+        User emp = employeeService.updateEmployee(req);
+        return ApiResponse.success(emp, "", HttpStatus.ACCEPTED.value());
     }
 }

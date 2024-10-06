@@ -26,9 +26,9 @@ public class TransactionService {
         return page.getContent();
     }
 
-    public List<Transaction> getTransactionUsingPaginationForUserId(String userid, Pageable pageable){
+    public Page<Transaction> getTransactionUsingPaginationForUserId(String userid, Pageable pageable){
         Page<Transaction> page = transactionRepository.findAll(pageable);
-        return page.getContent();
+        return page;
     }
 
     private Page<Transaction> getTransactionByFilterTransactionStatus(String filterValue, Pageable pageable) throws Exception {

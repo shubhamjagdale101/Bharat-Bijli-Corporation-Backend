@@ -5,6 +5,9 @@ import com.shubham.lightbill.lightbill_backend.constants.PaymentMethod;
 import com.shubham.lightbill.lightbill_backend.constants.TransactionStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.util.Date;
 
 @Getter
 @Setter
@@ -14,7 +17,6 @@ import lombok.*;
 @Entity
 public class Transaction {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private String txnId;
 
     @ManyToOne()
@@ -27,10 +29,13 @@ public class Transaction {
     private User user;
 
     @Enumerated(value = EnumType.STRING)
-    @Column(nullable = false)
+    @Column()
     private PaymentMethod paymentMethod;
 
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
     private TransactionStatus transactionStatus;
+
+    @UpdateTimestamp
+    private Date updatedAt;
 }

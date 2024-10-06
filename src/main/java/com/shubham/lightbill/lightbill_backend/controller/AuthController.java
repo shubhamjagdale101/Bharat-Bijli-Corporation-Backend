@@ -30,6 +30,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
+@CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 public class AuthController {
     @Autowired
     private AuthService authservice;
@@ -48,7 +49,7 @@ public class AuthController {
 
     @WithRateLimitProtection(rateLimit = 20, rateDuration = 60000)
     @GetMapping("/verifyOtp")
-    public ApiResponse<String> verifyOtp(
+    public ApiResponse<User> verifyOtp(
             @RequestParam("userId") String userId,
             @RequestParam("otpType") @ValidEnum(enumClass = OtpType.class) String otpType,
             @RequestParam("otp") String otp,
@@ -61,11 +62,11 @@ public class AuthController {
         String token = jwtUtil.generateToken(userId, String.valueOf(user.getRole()));
         Cookie cookie = authservice.generateCookie("Bearer-token", token.trim());
         response.addCookie(cookie);
-        return ApiResponse.success("login successful", URLEncoder.encode(token), HttpStatus.OK.value());
+        return ApiResponse.success(user, URLEncoder.encode(token), HttpStatus.OK.value());
     }
 
     @PostMapping("/signUpUser")
-    public ApiResponse<User> signUpUser(@Valid @RequestBody SignUpDto req){
+    public ApiResponse<User> signUpUser(@RequestBody SignUpDto req) throws Exception {
         User user = authservice.signUpUser(req, Role.CUSTOMER);
         return ApiResponse.success(user, "", 200);
     }

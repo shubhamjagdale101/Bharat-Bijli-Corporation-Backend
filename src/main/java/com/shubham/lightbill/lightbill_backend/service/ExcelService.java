@@ -7,6 +7,7 @@ import com.shubham.lightbill.lightbill_backend.model.Bill;
 import com.shubham.lightbill.lightbill_backend.model.User;
 import com.shubham.lightbill.lightbill_backend.repository.UserRepository;
 import com.shubham.lightbill.lightbill_backend.repository.WalletRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+@Slf4j
 @Service
 public class ExcelService {
     @Autowired
@@ -30,8 +32,13 @@ public class ExcelService {
     private BillService billService;
 
     private Boolean checkForDtoConversion(String[] fields, Map<String, Integer> fieldMappingWithIndex){
+        fieldMappingWithIndex.forEach((k, v) -> log.info(k + " : " + v));
+
         for (String field : fields) {
-            if (!fieldMappingWithIndex.containsKey(field)) return false;
+            if (!fieldMappingWithIndex.containsKey(field)) {
+                log.info(field);
+                return false;
+            }
         }
         return true;
     }
@@ -59,8 +66,9 @@ public class ExcelService {
         Role role = Role.CUSTOMER;
 
 
-        if(row.getCell(2).getCellType() == CellType.STRING) phoneNo = row.getCell(2).getStringCellValue();
-        else phoneNo = (String) String.valueOf(row.getCell(2).getNumericCellValue());
+        int phNoInd = fieldMappingWithIndex.get("Phone Number");
+        if(row.getCell(phNoInd).getCellType() == CellType.STRING) phoneNo = row.getCell(phNoInd).getStringCellValue();
+        else phoneNo = (String) String.valueOf(row.getCell(phNoInd).getNumericCellValue());
 
         return SignUpDto.builder()
                 .address(address)
@@ -92,7 +100,7 @@ public class ExcelService {
                 .build();
     }
 
-    private void fieldMappingToBill(Row row, Map<String, Integer> fieldMappingWithIndex){
+    private void rowHeadersIntoIndexing(Map<String, Integer> fieldMappingWithIndex, Row row){
         for (int i = 0; i < row.getPhysicalNumberOfCells(); i++) {
             Cell cell = row.getCell(i);
             fieldMappingWithIndex.put(cell.getStringCellValue(), i);
@@ -110,18 +118,23 @@ public class ExcelService {
 
             for (Row currRow : sheet) {
                 if (currRow.getRowNum() == 0) {
+                    rowHeadersIntoIndexing(fieldMappingWithIndex, currRow);
                     continue;
                 }
 
-                if(className.equals(User.class.getName())){
-                    SignUpDto signUp = convertToSignUpDto(currRow, fieldMappingWithIndex);
-                    User user = authService.signUpUser(signUp, role);
-                    finalResult.add(user);
-                }
-                else if(className.equals(Bill.class.getName())){
-                    BillDto billDto = convertToBillDto(currRow, fieldMappingWithIndex);
-                    Bill bill = billService.addBill(billDto);
-                    finalResult.add(bill);
+                try{
+                    if(className.equals(User.class.getName())){
+                        SignUpDto signUp = convertToSignUpDto(currRow, fieldMappingWithIndex);
+                        User user = authService.signUpUser(signUp, role);
+                        finalResult.add(user);
+                    }
+                    else if(className.equals(Bill.class.getName())){
+                        BillDto billDto = convertToBillDto(currRow, fieldMappingWithIndex);
+                        Bill bill = billService.addBill(billDto);
+                        finalResult.add(bill);
+                    }
+                } catch(Exception ignored){
+                    log.info(ignored.getMessage());
                 }
             }
         } catch (Exception e) {

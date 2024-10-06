@@ -20,7 +20,7 @@ public class BillDto {
     @NotNull(message = "Unit consumption cannot be null")
     private Integer unitConsumption;
 
-    @NotNull(message = "Due date cannot be null")
+    @NotNull(message = "month of the bill cannot be null")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date monthOfTheBill;
 
