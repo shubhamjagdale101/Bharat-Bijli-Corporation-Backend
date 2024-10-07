@@ -89,12 +89,10 @@ public class ExcelService {
         Date dueDate = row.getCell(fieldMappingWithIndex.get("Due Date")).getDateCellValue();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate localDate = LocalDate.parse(yearAndMonth, formatter);
-        Date date = java.sql.Date.valueOf(localDate);
 
         return BillDto.builder()
                 .userId(userId)
-                .monthOfTheBill(date)
+                .monthOfTheBill(yearAndMonth)
                 .unitConsumption(unitConsumption)
                 .dueDate(dueDate)
                 .build();

@@ -28,7 +28,7 @@ public class Bill {
     private User user;
 
     @Column(nullable = false)
-    private Date monthOfTheBill;
+    private String monthOfTheBill;
 
     @Column(nullable = false)
     private Integer unitConsumption;

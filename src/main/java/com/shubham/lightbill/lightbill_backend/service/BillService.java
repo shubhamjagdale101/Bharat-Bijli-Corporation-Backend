@@ -56,13 +56,34 @@ public class BillService {
     }
 
     public Page<Bill> getBillsUsingPagination(Pageable pageable){
-        Page<Bill> page = billRepository.findAll(pageable);
+        Pageable sortedPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                pageable.getSort().and(Sort.by(Sort.Direction.DESC, "monthOfTheBill"))  // Combine existing sorting with new sorting
+        );
+        Page<Bill> page = billRepository.findAll(sortedPageable);
+        return page;
+    }
+
+    public Page<Bill> getBillUsingPaginationForSpecificUser(String userId, Pageable pageable){
+        Pageable sortedPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                pageable.getSort().and(Sort.by(Sort.Direction.DESC, "monthOfTheBill"))  // Combine existing sorting with new sorting
+        );
+        User user = userRepository.findByUserId(userId);
+        Page<Bill> page = billRepository.findByUser(user, sortedPageable);
         return page;
     }
 
     public List<Bill> getBillsWithUserIdUsingPagination(String userId, Pageable pageable){
+        Pageable sortedPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                pageable.getSort().and(Sort.by(Sort.Direction.DESC, "monthOfTheBill"))  // Combine existing sorting with new sorting
+        );
         User user = userRepository.findByUserId(userId);
-        Page<Bill> page = billRepository.findByUser(user, pageable);
+        Page<Bill> page = billRepository.findByUser(user, sortedPageable);
         return page.getContent();
     }
 
@@ -70,5 +91,11 @@ public class BillService {
         Pageable pageable = PageRequest.of(0, 6, Sort.by("monthOfTheBill").descending());
         Page<Bill> page = billRepository.findByUser(user, pageable);
         return page.getContent();
+    }
+
+    public Bill getBillById(String billId) throws Exception {
+        Bill bill = billRepository.findByBillId(billId);
+        if(bill == null) throw new Exception("Bill with Bill number not exists");
+        return bill;
     }
 }

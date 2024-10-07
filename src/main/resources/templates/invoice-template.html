@@ -120,8 +120,8 @@
 
     <div class="due-details">
         <p><strong>Due Date:</strong> [[${dueDate}]]</p>
-        <p><strong>Amount Before Due Date:</strong> $[[${amountBeforeDueDate}]]</p>
-        <p><strong>Amount After Due Date:</strong> $[[${amountAfterDueDate}]]</p>
+        <p><strong>Amount Before Due Date:</strong> Rs [[${amountBeforeDueDate}]]</p>
+        <p><strong>Amount After Due Date:</strong> Rs [[${amountAfterDueDate}]]</p>
     </div>
 
     <div class="consumption-details">
@@ -131,14 +131,15 @@
             <tr>
                 <th>Billing Month</th>
                 <th>Unit Consumption (kWh)</th>
-                <th>Amount ($)</th>
+                <th>Amount (Rs)</th>
             </tr>
             </thead>
             <tbody>
             <tr th:if="${currentMonthConsumption != null}">
                 <td th:text="${currentMonthConsumption.month}"></td>
                 <td th:text="${currentMonthConsumption.units}"></td>
-                <td th:class="${currentMonthConsumption.paid} ? 'status-paid' : 'status-unpaid'" th:text="${currentMonthConsumption.amount}"></td>
+                <td th:classappend="${currentMonthConsumption.paid} ? 'status-paid' : 'status-unpaid'" th:text="${currentMonthConsumption.amount}"></td>
+
             </tr>
             </tbody>
         </table>
@@ -151,21 +152,21 @@
             <tr>
                 <th>Billing Month</th>
                 <th>Unit Consumption (kWh)</th>
-                <th>Amount ($)</th>
+                <th>Amount (Rs)</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="consumption : ${consumptionSummary}">
                 <td th:text="${consumption.month}"></td>
                 <td th:text="${consumption.units}"></td>
-                <td th:text="${consumption.amount}"></td>
+                <td th:classappend="${consumption.paid} ? 'status-paid' : 'status-unpaid'" th:text="${consumption.amount}"></td>
             </tr>
             </tbody>
         </table>
     </div>
 
     <div class="amount-due">
-        <p>Total Amount Due: <span style="color: red;">$[[${totalAmountDue}]]</span></p>
+        <p>Total Amount Due: <span style="color: red;">Rs [[${totalAmountDue}]]</span></p>
     </div>
 </div>
 </body>

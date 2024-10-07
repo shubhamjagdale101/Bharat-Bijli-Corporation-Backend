@@ -47,7 +47,7 @@ public class CustomerController {
     ){
         String userId = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        Page<Bill> result = billService.getBillsUsingPagination(pageable);
+        Page<Bill> result = billService.getBillUsingPaginationForSpecificUser(userId, pageable);
         return ApiResponse.success(result.getContent(), ((Integer) result.getTotalPages()).toString(), HttpStatus.OK.value());
     }
 
@@ -90,7 +90,7 @@ public class CustomerController {
     public ApiResponse<String> payByWallet(@PathVariable("billId") String billId) throws Exception {
         String userId = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         String res = customerService.payByWallet(userId, billId);
-        return ApiResponse.success(res, "", HttpStatus.OK.value());
+        return ApiResponse.success("", res, HttpStatus.OK.value());
     }
 
     @GetMapping("/payByCash/{billId}")

@@ -95,6 +95,10 @@ public class CustomerService {
         Transaction txn = transactionRepository.findByTxnId(txnDto.getTransactionId());
         System.out.println(txnDto.getTransactionId());
         if(txn == null) throw new Exception("Txn not found.");
+        Bill bill = billRepository.findByBillId(txn.getBill().getBillId());
+        if(txnDto.getStatus() == PaymentStatus.PAID) bill.setPaymentStatus(PaymentStatus.PAID);
+        billRepository.save(bill);
+
 
         txn.setTransactionStatus(TransactionStatus.valueOf(String.valueOf(txnDto.getStatus())));
         txn.setPaymentMethod(PaymentMethod.valueOf(txnDto.getPaymentMethod()));
@@ -112,8 +116,14 @@ public class CustomerService {
 
         Integer amount = null;
         LocalDate currDate = LocalDate.now();
-        if(currDate.isAfter(ChronoLocalDate.from(bill.getDueDate().toInstant()))) amount = bill.getAmount();
-        else amount = bill.getAmount() - bill.getDiscount();
+        LocalDate dueDate = bill.getDueDate().toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+        if(currDate.isAfter(dueDate)) {
+            amount = bill.getAmount();
+        } else {
+            amount = bill.getAmount() - bill.getDiscount();
+        }
 
         if(wallet.getBalance() >= amount){
             wallet.setBalance(wallet.getBalance() - amount);
@@ -124,6 +134,7 @@ public class CustomerService {
                     .txnId(idGeneratorService.generateId(Transaction.class.getName()))
                     .paymentMethod(PaymentMethod.WALLET)
                     .bill(bill)
+                    .transactionStatus(TransactionStatus.PAID)
                     .build();
             transactionRepository.save(txn);
             return "Payment Done";

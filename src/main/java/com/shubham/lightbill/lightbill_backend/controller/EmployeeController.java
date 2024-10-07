@@ -75,6 +75,12 @@ public class EmployeeController {
         return ApiResponse.success(result.getContent(), ((Integer) result.getTotalPages()).toString(), HttpStatus.OK.value());
     }
 
+    @GetMapping("getBillById/{billId}")
+    public ApiResponse<Bill> getBillById(@PathVariable("billId") String billId) throws Exception {
+        Bill bill = billService.getBillById(billId);
+        return ApiResponse.success(bill, "", 200);
+    }
+
     @GetMapping("/getCustomers")
     public ApiResponse<List<User>> getCustomers(
             @RequestParam(name = "page",defaultValue = "0") int pageNumber,

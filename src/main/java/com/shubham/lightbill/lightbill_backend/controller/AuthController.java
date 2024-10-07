@@ -11,6 +11,7 @@ import com.shubham.lightbill.lightbill_backend.repository.UserRepository;
 import com.shubham.lightbill.lightbill_backend.response.ApiResponse;
 import com.shubham.lightbill.lightbill_backend.service.AuthService;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -19,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -28,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/auth")
 @CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
@@ -69,5 +72,27 @@ public class AuthController {
     public ApiResponse<User> signUpUser(@RequestBody SignUpDto req) throws Exception {
         User user = authservice.signUpUser(req, Role.CUSTOMER);
         return ApiResponse.success(user, "", 200);
+    }
+
+    @DeleteMapping("/clearCookies")
+    public ApiResponse<String> deleteAllCookies(HttpServletRequest request, HttpServletResponse response) {
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                log.info("Deleting cookie: " + cookie.getName());
+                Cookie deleteCookie = new Cookie(cookie.getName(), null);
+                deleteCookie.setMaxAge(0); // Set the expiration to delete the cookie
+                deleteCookie.setPath(cookie.getPath() != null ? cookie.getPath() : "/"); // Keep the same path
+                deleteCookie.setDomain(cookie.getDomain()); // Set the same domain if it exists
+                deleteCookie.setHttpOnly(cookie.isHttpOnly()); // Retain HttpOnly setting
+                deleteCookie.setSecure(cookie.getSecure()); // Retain Secure setting
+                response.addCookie(deleteCookie); // Add the delete cookie to the response
+            }
+        } else {
+            log.info("No cookies found to delete.");
+        }
+
+        return ApiResponse.success("","All cookies have been deleted.", 200);
     }
 }

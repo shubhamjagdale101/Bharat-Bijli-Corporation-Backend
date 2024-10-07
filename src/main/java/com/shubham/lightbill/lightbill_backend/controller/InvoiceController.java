@@ -32,7 +32,7 @@ public class InvoiceController {
         return ApiResponse.success(null, res, HttpStatus.ACCEPTED.value());
     }
 
-    @PostMapping("/invoiceEmail")
+    @GetMapping("/invoiceEmail")
     public ApiResponse<String> sendInvoiceEmail() throws Exception {
         String userId = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         pdfService.sendInvoiceOnMail(userId);

@@ -11,7 +11,7 @@ import java.util.Date;
 
 @Repository
 public interface BillRepository extends JpaRepository<Bill, String> {
-    Bill findByUserAndMonthOfTheBill(User user, Date monthOfTheBill);
+    Bill findByUserAndMonthOfTheBill(User user, String monthOfTheBill);
     Page<Bill> findByUser(User user, Pageable pageable);
 
     Bill findByBillId(String billId);

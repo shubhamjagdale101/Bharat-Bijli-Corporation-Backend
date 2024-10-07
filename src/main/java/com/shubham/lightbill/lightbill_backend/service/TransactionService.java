@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,28 +23,50 @@ public class TransactionService {
     private UserRepository userRepository;
 
     public List<Transaction> getTransactionUsingPagination(Pageable pageable){
-        Page<Transaction> page = transactionRepository.findAll(pageable);
+        Pageable sortedPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                pageable.getSort().and(Sort.by(Sort.Direction.DESC, "updatedAt"))  // Combine existing sorting with new sorting
+        );
+        Page<Transaction> page = transactionRepository.findAll(sortedPageable);
         return page.getContent();
     }
 
     public Page<Transaction> getTransactionUsingPaginationForUserId(String userid, Pageable pageable){
-        Page<Transaction> page = transactionRepository.findAll(pageable);
+        Pageable sortedPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                pageable.getSort().and(Sort.by(Sort.Direction.DESC, "updatedAt"))  // Combine existing sorting with new sorting
+        );
+        Page<Transaction> page = transactionRepository.findAll(sortedPageable);
         return page;
     }
 
     private Page<Transaction> getTransactionByFilterTransactionStatus(String filterValue, Pageable pageable) throws Exception {
+        Pageable sortedPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                pageable.getSort().and(Sort.by(Sort.Direction.DESC, "updatedAt"))  // Combine existing sorting with new sorting
+        );
+
         try{
             TransactionStatus status = TransactionStatus.valueOf(filterValue);
-            return transactionRepository.findByTransactionStatus(status, pageable);
+            return transactionRepository.findByTransactionStatus(status, sortedPageable);
         } catch(IllegalStateException ex){
             throw new Exception("there is no transaction status like" + filterValue);
         }
     }
 
     private Page<Transaction> getTransactionByFilterPaymentMethod(String filterValue, Pageable pageable) throws Exception {
+        Pageable sortedPageable = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                pageable.getSort().and(Sort.by(Sort.Direction.DESC, "updatedAt"))  // Combine existing sorting with new sorting
+        );
+
         try{
             PaymentMethod method = PaymentMethod.valueOf(filterValue);
-            return transactionRepository.findByPaymentMethod(method, pageable);
+            return transactionRepository.findByPaymentMethod(method, sortedPageable);
         } catch(IllegalStateException ex){
             throw new Exception("there is no payment method like" + filterValue);
         }

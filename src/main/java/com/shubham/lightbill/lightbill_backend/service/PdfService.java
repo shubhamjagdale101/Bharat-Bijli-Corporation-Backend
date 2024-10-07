@@ -9,6 +9,7 @@ import com.shubham.lightbill.lightbill_backend.model.User;
 import com.shubham.lightbill.lightbill_backend.repository.BillRepository;
 import com.shubham.lightbill.lightbill_backend.repository.UserRepository;
 import jakarta.mail.MessagingException;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.slf4j.Logger;
@@ -24,6 +25,7 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+@Slf4j
 @Service
 public class PdfService {
     @Autowired
@@ -42,27 +44,38 @@ public class PdfService {
     private static final Logger logger = LoggerFactory.getLogger(PdfService.class);
 
     public String prepareInvoiceHtmlFile(User user){
+        log.info("prepare html function");
         List<Bill> bills = billService.getBillsOfPastSixMonths(user);
+        log.info(bills.toString() + " " + bills.size());
 
         SimpleDateFormat monthFormat = new SimpleDateFormat("MMMM");
         SimpleDateFormat formatter = new SimpleDateFormat("dd:MM:yyyy");
 
         Integer unitConsumption = bills.get(0).getUnitConsumption();
+        log.info(unitConsumption.toString());
         String customerName = user.getName();
+        log.info(customerName);
         String customerAddress = user.getAddress();
+        log.info(customerAddress);
         String meterNumber = user.getMeterNumber();
+        log.info(meterNumber);
         String dueDate = formatter.format(bills.get(0).getDueDate());
+        log.info(dueDate);
         double amountBeforeDueDate = bills.get(0).getAmount() - bills.get(0).getDiscount();
+        log.info(((Double)amountBeforeDueDate).toString());
         double amountAfterDueDate = bills.get(0).getAmount();
+        log.info(((Double)amountAfterDueDate).toString());
         double totalAmountDue = 00.00;
-        String currMonth = monthFormat.format(bills.get(0).getMonthOfTheBill());
+        String currMonth = bills.get(0).getMonthOfTheBill();
+        log.info(currMonth);
+        log.info("In-between html");
 
         // Sample consumption data
         List<Consumption> consumptionSummary = new ArrayList<>();
 
         for (Bill bill : bills){
             consumptionSummary.add(new Consumption(
-                    monthFormat.format(bill.getMonthOfTheBill()),
+                    bill.getMonthOfTheBill(),
                     bill.getUnitConsumption(),
                     bill.getAmount(),
                     bill.getPaymentStatus() == PaymentStatus.PAID
@@ -80,13 +93,15 @@ public class PdfService {
         context.setVariable("amountAfterDueDate", amountAfterDueDate);
         context.setVariable("totalAmountDue", totalAmountDue);
         context.setVariable("consumptionSummary", consumptionSummary);
-        context.setVariable("currentMonthConsumption", new Consumption(currMonth, unitConsumption, amountAfterDueDate, false));
+        context.setVariable("currentMonthConsumption", new Consumption(currMonth, unitConsumption, amountAfterDueDate, bills.get(0).getPaymentStatus() == PaymentStatus.PAID));
 
+        log.info("prepare html function completed");
         return templateEngine.process("invoice-template.html", context);
     }
 
     public ByteArrayOutputStream generateInvoicePdf(User user) throws IOException {
         String htmlContent = prepareInvoiceHtmlFile(user);
+        log.info("Html file Ready");
 
         // Parse the HTML to a Jsoup Document
         Document document = Jsoup.parse(htmlContent, "UTF-8");
@@ -186,18 +201,18 @@ public class PdfService {
         Runnable task = () -> {
             File tempPdfFile = null;
             try {
-                // create pdf file and generate file
                 tempPdfFile = File.createTempFile("invoice", ".pdf");
                 try (FileOutputStream fos = new FileOutputStream(tempPdfFile);
                      ByteArrayOutputStream pdfOutputStream = generateInvoicePdf(user)) {
                     fos.write(pdfOutputStream.toByteArray());
                 }
 
+                log.info("Ready to send mail");
                 prepareEmailAndSend(email, tempPdfFile, formatter.format(new Date()), user.getMeterNumber(), user);
+                log.info("mail send");
             } catch (IOException | MessagingException e) {
                 logger.error("Error sending invoice on mail: " + e.getMessage(), e);
             } finally {
-                // delete temp file after work
                 if (tempPdfFile != null && tempPdfFile.exists()) {
                     boolean deleted = tempPdfFile.delete();
                     if (!deleted) {
