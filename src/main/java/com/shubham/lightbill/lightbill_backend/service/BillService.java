@@ -14,7 +14,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -26,11 +31,18 @@ public class BillService {
     @Autowired
     private IdGeneratorService idGeneratorService;
 
-    private int getDiscountAmount(int amount){
-        return (int) Math.min(amount * 0.05, 20);
-    }
-    private int getAmountForConsumption(int unitConsumptionOfElectricity) {
+    private Double getAmountForConsumption(Double unitConsumptionOfElectricity) {
         return unitConsumptionOfElectricity * 10;
+    }
+
+    private boolean checkForValidDueDate(String month, Date dueDate) {
+        YearMonth givenMonth = YearMonth.parse(month, DateTimeFormatter.ofPattern("yyyy-MM"));
+        LocalDate dueLocalDate = dueDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        YearMonth nextMonth = givenMonth.plusMonths(1);
+        YearMonth dueMonth = YearMonth.from(dueLocalDate);
+
+        return dueMonth.equals(nextMonth);
     }
 
     public Bill addBill(@Valid BillDto req) throws Exception {
@@ -38,14 +50,17 @@ public class BillService {
         if(user.getRole() == Role.EMPLOYEE) throw new Exception("Bill should be created for Customer only");
 
         Bill currBill = billRepository.findByUserAndMonthOfTheBill(user, req.getMonthOfTheBill());
-        if(currBill != null) return currBill;
+        if(currBill != null) throw new Exception("Bill already Exist with given user and month");
 
-        int amount = getAmountForConsumption(req.getUnitConsumption());
+        if(!checkForValidDueDate(req.getMonthOfTheBill(), req.getDueDate())) throw new Exception("Due date should in the month of the bill");
+        if(req.getUnitConsumption() <= 0) throw new Exception("Unit Consumption Should be positive number");
+
+        Double amount = getAmountForConsumption(req.getUnitConsumption());
         Bill bill = Bill.builder()
                 .meterNumber(user.getMeterNumber())
                 .billId(idGeneratorService.generateId(Bill.class.getName()))
                 .amount(amount)
-                .discount(getDiscountAmount(amount))
+                .discount(amount * 0.05)
                 .monthOfTheBill(req.getMonthOfTheBill())
                 .dueDate(req.getDueDate())
                 .unitConsumption(req.getUnitConsumption())
@@ -97,5 +112,9 @@ public class BillService {
         Bill bill = billRepository.findByBillId(billId);
         if(bill == null) throw new Exception("Bill with Bill number not exists");
         return bill;
+    }
+
+    public Page<Bill> getUnpaidBills(Pageable pageble) {
+        return billRepository.findByPaymentStatus(PaymentStatus.UNPAID, pageble);
     }
 }

@@ -6,7 +6,6 @@ import com.shubham.lightbill.lightbill_backend.constants.Role;
 import com.shubham.lightbill.lightbill_backend.constants.WalletStatus;
 import com.shubham.lightbill.lightbill_backend.dto.SignUpDto;
 import com.shubham.lightbill.lightbill_backend.model.Otp;
-import com.shubham.lightbill.lightbill_backend.model.OtpCompositeKey;
 import com.shubham.lightbill.lightbill_backend.model.User;
 import com.shubham.lightbill.lightbill_backend.model.Wallet;
 import com.shubham.lightbill.lightbill_backend.repository.OtpRepository;
@@ -24,8 +23,6 @@ import java.net.URLEncoder;
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @Service
@@ -85,7 +82,7 @@ public class AuthService {
                 .walletId(idGeneratorService.generateId(Wallet.class.getName()))
                 .user(user)
                 .status(WalletStatus.ACTIVE)
-                .balance(0)
+                .balance(0.0)
                 .build();
         return walletRepository.save(wallet);
     }
@@ -106,38 +103,30 @@ public class AuthService {
         return user;
     }
 
-    public Otp generateOtp(User user, String generatedOtp){
+    public Otp generateOtp(String email, String generatedOtp){
         Otp otp = Otp.builder()
-                .key(
-                        OtpCompositeKey.builder()
-                                .type(OtpType.VERIFY_USER)
-                                .user(user)
-                        .build()
-                )
+                .email(email)
                 .otp(generatedOtp)
                 .build();
         return otpRepository.save(otp);
     }
 
-    public void sendOtpToEmail(String userId) throws Exception {
+    public void sendOtpToEmail(String emailId) throws Exception {
         SecureRandom random = new SecureRandom();
         String generatedOtp = String.format("%06d", random.nextInt(999999));
 
-        User user = userRepository.findByUserId(userId);
+        User user = userRepository.findByEmail(emailId);
         if(user == null) throw new Exception("User Not Found");
 
-        Otp otp = generateOtp(user, generatedOtp);
+        Otp otp = generateOtp(emailId, generatedOtp);
         sendEmail(user.getEmail(), user.getName(), generatedOtp);
     }
 
-    public Boolean verifyOtp(String userOtp, String userId, OtpType type){
-        User user = userRepository.findByUserId(userId);
-        OtpCompositeKey key = OtpCompositeKey.builder()
-                .user(user)
-                .type(type)
-                .build();
+    public Boolean verifyOtp(String userOtp, String emailId){
+        User user = userRepository.findByEmail(emailId);
 
-        Otp dbOtp = otpRepository.findByKey(key);
+
+        Otp dbOtp = otpRepository.findByEmail(emailId);
         long duration = Duration.between(Instant.now(), dbOtp.getUpdatedTime().toInstant()).toMillis();
 
         return duration <= otpExpirationTime && Objects.equals(userOtp, dbOtp.getOtp());

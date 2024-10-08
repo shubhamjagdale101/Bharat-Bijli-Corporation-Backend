@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -43,13 +42,30 @@ public class ExcelService {
         return true;
     }
 
+    private String getPhoneNumberFromCell(Cell cell){
+        if (cell != null) {
+            switch (cell.getCellType()) {
+                case STRING:
+                    return cell.getStringCellValue();
+                case NUMERIC:
+                    long phoneNumberNumeric = (long) cell.getNumericCellValue();
+                    return String.valueOf(phoneNumberNumeric);
+                case BLANK:
+                    return "";
+                default:
+                    throw new IllegalArgumentException("Unsupported cell type for Phone Number.");
+            }
+        }
+        return null;
+    }
+
     private Boolean checkForSignUpDtoConversion(Map<String, Integer> fieldMappingWithIndex){
         String[] fields = {"Name", "Email", "Address", "Phone Number"};
         return checkForDtoConversion(fields, fieldMappingWithIndex);
     }
 
     private Boolean checkForBillDtoConversion(Map<String, Integer> fieldMappingWithIndex){
-        String[] fields = {"User Id", "MYear And Month", "Unit Consumption", "Due Date"};
+        String[] fields = {"User Id", "Year And Month", "Unit Consumption", "Due Date"};
         return checkForDtoConversion(fields, fieldMappingWithIndex);
     }
 
@@ -62,7 +78,7 @@ public class ExcelService {
         name = row.getCell(fieldMappingWithIndex.get("Name")).getStringCellValue();
         email = row.getCell(fieldMappingWithIndex.get("Email")).getStringCellValue();
         address = row.getCell(fieldMappingWithIndex.get("Address")).getStringCellValue();
-        phNo = row.getCell(fieldMappingWithIndex.get("Phone Number")).getStringCellValue();
+        phNo = getPhoneNumberFromCell(row.getCell(fieldMappingWithIndex.get("Phone Number")));
         Role role = Role.CUSTOMER;
 
 
@@ -79,13 +95,13 @@ public class ExcelService {
     }
 
     private BillDto convertToBillDto(Row row, Map<String, Integer> fieldMappingWithIndex) throws Exception {
-        if(checkForBillDtoConversion(fieldMappingWithIndex)){
+        if(!checkForBillDtoConversion(fieldMappingWithIndex)){
             throw new Exception("fields name are improper");
         }
 
         String userId = row.getCell(fieldMappingWithIndex.get("User Id")).getStringCellValue();
         String yearAndMonth = row.getCell(fieldMappingWithIndex.get("Year And Month")).getStringCellValue();
-        Integer unitConsumption = (int) row.getCell(fieldMappingWithIndex.get("Unit Consumption")).getNumericCellValue();
+        Double unitConsumption = (Double) row.getCell(fieldMappingWithIndex.get("Unit Consumption")).getNumericCellValue();
         Date dueDate = row.getCell(fieldMappingWithIndex.get("Due Date")).getDateCellValue();
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -108,8 +124,8 @@ public class ExcelService {
     public List<Object> saveExcelToDatabase(MultipartFile file, String className, Role role){
         List<Object> finalResult = new ArrayList<>();
         try(
-            InputStream inputStream = file.getInputStream();
-            Workbook workbook = new XSSFWorkbook(inputStream);
+                InputStream inputStream = file.getInputStream();
+                Workbook workbook = new XSSFWorkbook(inputStream);
         ){
             Sheet sheet = workbook.getSheetAt(0);
             Map<String, Integer> fieldMappingWithIndex = new HashMap<>();

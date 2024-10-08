@@ -1,6 +1,5 @@
 package com.shubham.lightbill.lightbill_backend.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -8,8 +7,6 @@ import com.shubham.lightbill.lightbill_backend.constants.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Collection;
-import java.util.List;
 
 @Builder
 @Getter

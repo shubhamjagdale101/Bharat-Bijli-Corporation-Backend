@@ -6,10 +6,10 @@ import lombok.Getter;
 public class Consumption {
     private String month;
     private Boolean paid;
-    private int units;
+    private double units;
     private double amount;
 
-    public Consumption(String month, int units, double amount, Boolean paid) {
+    public Consumption(String month, double units, double amount, Boolean paid) {
         this.month = month;
         this.units = units;
         this.amount = amount;

@@ -17,15 +17,15 @@ import com.shubham.lightbill.lightbill_backend.repository.UserRepository;
 import com.shubham.lightbill.lightbill_backend.repository.WalletRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.chrono.ChronoLocalDate;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -44,6 +44,8 @@ public class CustomerService {
     private WalletRepository walletRepository;
     @Autowired
     private TransactionRepository transactionRepository;
+    @Autowired
+    private TransactionService transactionService;
 
     public User getCustomerProfile(String userId){
         return userRepository.findByUserId(userId);
@@ -114,7 +116,7 @@ public class CustomerService {
         Bill bill = billRepository.findByBillId(billId);
         if(bill == null) throw new Exception("There is no record with given billId");
 
-        Integer amount = null;
+        Double amount = null;
         LocalDate currDate = LocalDate.now();
         LocalDate dueDate = bill.getDueDate().toInstant()
                 .atZone(ZoneId.systemDefault())
@@ -134,6 +136,7 @@ public class CustomerService {
                     .txnId(idGeneratorService.generateId(Transaction.class.getName()))
                     .paymentMethod(PaymentMethod.WALLET)
                     .bill(bill)
+                    .user(user)
                     .transactionStatus(TransactionStatus.PAID)
                     .build();
             transactionRepository.save(txn);
@@ -155,5 +158,20 @@ public class CustomerService {
                 .build();
         txn = transactionRepository.save(txn);
         return "Paid Successfully";
+    }
+
+    public Transaction getTransactionByFilter(String filterValue) {
+        String userId = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
+        User user = userRepository.findByUserId(userId);
+
+        Transaction txn = null;
+        txn = transactionRepository.findByTxnIdAndUserAndTransactionStatus(filterValue, user, TransactionStatus.PAID);
+        if(txn != null) return txn;
+
+        Bill bill = billRepository.findByUserAndMonthOfTheBill(user, filterValue);
+        if(bill == null) return null;
+
+        txn = transactionRepository.findByBillAndTransactionStatus(bill, TransactionStatus.PAID);
+        return txn;
     }
 }

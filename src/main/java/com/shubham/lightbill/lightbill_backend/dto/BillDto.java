@@ -18,7 +18,7 @@ public class BillDto {
 
     @Min(value = 0, message = "Unit consumption must be non-negative")
     @NotNull(message = "Unit consumption cannot be null")
-    private Integer unitConsumption;
+    private Double unitConsumption;
 
     @NotNull(message = "month of the bill cannot be null")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM")

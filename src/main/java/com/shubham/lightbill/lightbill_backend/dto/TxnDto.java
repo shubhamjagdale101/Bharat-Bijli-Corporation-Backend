@@ -2,7 +2,6 @@ package com.shubham.lightbill.lightbill_backend.dto;
 
 import com.shubham.lightbill.lightbill_backend.constants.PaymentStatus;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
 

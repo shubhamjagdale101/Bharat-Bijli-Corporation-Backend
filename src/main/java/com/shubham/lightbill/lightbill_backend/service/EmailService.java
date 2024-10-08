@@ -41,7 +41,7 @@ public class EmailService {
 
         helper.setFrom("shubhamjagdalerxl@gmail.com");
         helper.setTo(email);
-        helper.setSubject("Your OTP Code");
+        helper.setSubject("Invoice Mail");
         helper.setText(body);
         if(attachment != null) helper.addAttachment(attachmentFileName, attachment);
 

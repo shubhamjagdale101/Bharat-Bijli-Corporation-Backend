@@ -2,8 +2,7 @@ package com.shubham.lightbill.lightbill_backend.exceptionHandler;
 
 import com.shubham.lightbill.lightbill_backend.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -39,7 +38,7 @@ public class ControllerExceptionHandler {
         List<String> errorMessages = e.getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .map(fieldError -> fieldError.getDefaultMessage()) // Get the default message associated with the field
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
 
         ApiResponse<Object> res = ApiResponse.error("Validation failure", HttpStatus.BAD_REQUEST.value());

@@ -1,6 +1,5 @@
 package com.shubham.lightbill.lightbill_backend.model;
 
-import com.shubham.lightbill.lightbill_backend.constants.OtpType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -14,8 +13,8 @@ import java.util.Date;
 @NoArgsConstructor
 @Builder
 public class Otp {
-    @EmbeddedId
-    private OtpCompositeKey key;
+    @Id
+    private String email;
 
     @Column(nullable = false)
     private String otp;

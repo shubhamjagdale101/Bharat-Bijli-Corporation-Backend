@@ -1,7 +1,5 @@
 package com.shubham.lightbill.lightbill_backend.dto;
 
-import com.shubham.lightbill.lightbill_backend.annotation.ValidEnum;
-import com.shubham.lightbill.lightbill_backend.constants.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

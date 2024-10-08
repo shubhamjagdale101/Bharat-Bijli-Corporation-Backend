@@ -18,8 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
-
 import java.util.List;
+
 
 @Slf4j
 @RestController
@@ -38,6 +38,14 @@ public class CustomerController {
         String userId = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         User customerProfile = customerService.getCustomerProfile(userId);
         return ApiResponse.success(customerProfile, "", 100);
+    }
+
+    @GetMapping("/getTransactionByFilter")
+    public ApiResponse<Transaction> getTransactionByFilter(
+            @RequestParam(name = "filterValue") String filterValue
+    ){
+        Transaction txn = customerService.getTransactionByFilter(filterValue);
+        return ApiResponse.success(txn, "", 200);
     }
 
     @GetMapping("/getBills")
@@ -67,7 +75,6 @@ public class CustomerController {
             @RequestParam(name = "page",defaultValue = "0") int pageNumber,
             @RequestParam(name = "size", defaultValue = "10") int pageSize
     ) throws Exception {
-        String userId = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         Page<Transaction> res = transactionService.getTransactionByFilterWithPagination("TRANSACTION_STATUS", "PAID", pageable);
         return ApiResponse.success(res.getContent(), ((Integer) res.getTotalPages()).toString(), HttpStatus.OK.value());

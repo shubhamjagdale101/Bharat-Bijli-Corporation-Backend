@@ -2,8 +2,6 @@ package com.shubham.lightbill.lightbill_backend.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.shubham.lightbill.lightbill_backend.constants.TransactionStatus;
 import com.shubham.lightbill.lightbill_backend.constants.WalletStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -29,5 +27,5 @@ public class Wallet {
     private WalletStatus status;
 
     @Column(nullable = false)
-    private Integer balance;
+    private Double balance;
 }

@@ -1,23 +1,20 @@
 package com.shubham.lightbill.lightbill_backend.service;
 
-import com.shubham.lightbill.lightbill_backend.constants.FilterTypes;
 import com.shubham.lightbill.lightbill_backend.constants.Role;
 import com.shubham.lightbill.lightbill_backend.dto.BillDto;
-import com.shubham.lightbill.lightbill_backend.dto.SignUpDto;
 import com.shubham.lightbill.lightbill_backend.model.Bill;
 import com.shubham.lightbill.lightbill_backend.model.Transaction;
 import com.shubham.lightbill.lightbill_backend.model.User;
 import com.shubham.lightbill.lightbill_backend.repository.UserRepository;
-import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class EmployeeService {
     @Autowired
@@ -66,10 +63,24 @@ public class EmployeeService {
         String userId = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
         User user = userRepository.findByUserId(userId);
 
-        if(req.containsKey("email")) user.setEmail(req.get("email").toString());
-        if(req.containsKey("address")) user.setAddress(req.get("address").toString());
-        if(req.containsKey("phNo")) user.setPhNo(req.get("phNo").toString());
+        if(req.containsKey("email")) {
+            log.info("updating email");
+            user.setEmail(req.get("email").toString());
+        }
+        if(req.containsKey("address")) {
+            log.info("updating address");
+            user.setAddress(req.get("address").toString());
+        }
+        if(req.containsKey("phNo")) {
+            log.info("updating phNo");
+            user.setPhNo(req.get("phNo").toString());
+        }
         user = userRepository.save(user);
         return user;
+    }
+
+    public Page<Bill> getUnpaidBills(Pageable pageble) {
+        Page<Bill> bills = billService.getUnpaidBills(pageble);
+        return bills;
     }
 }

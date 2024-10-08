@@ -1,5 +1,6 @@
 package com.shubham.lightbill.lightbill_backend.repository;
 
+import com.shubham.lightbill.lightbill_backend.constants.PaymentStatus;
 import com.shubham.lightbill.lightbill_backend.model.Bill;
 import com.shubham.lightbill.lightbill_backend.model.User;
 import org.springframework.data.domain.Page;
@@ -15,4 +16,6 @@ public interface BillRepository extends JpaRepository<Bill, String> {
     Page<Bill> findByUser(User user, Pageable pageable);
 
     Bill findByBillId(String billId);
+
+    Page<Bill> findByPaymentStatus(PaymentStatus paymentStatus, Pageable pageble);
 }

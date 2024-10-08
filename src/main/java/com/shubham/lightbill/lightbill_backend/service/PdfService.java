@@ -51,7 +51,7 @@ public class PdfService {
         SimpleDateFormat monthFormat = new SimpleDateFormat("MMMM");
         SimpleDateFormat formatter = new SimpleDateFormat("dd:MM:yyyy");
 
-        Integer unitConsumption = bills.get(0).getUnitConsumption();
+        Double unitConsumption = bills.get(0).getUnitConsumption();
         log.info(unitConsumption.toString());
         String customerName = user.getName();
         log.info(customerName);

@@ -1,6 +1,5 @@
 package com.shubham.lightbill.lightbill_backend.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.shubham.lightbill.lightbill_backend.constants.PaymentStatus;
@@ -8,7 +7,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -31,16 +29,16 @@ public class Bill {
     private String monthOfTheBill;
 
     @Column(nullable = false)
-    private Integer unitConsumption;
+    private Double unitConsumption;
 
     @Column(nullable = false)
     private Date dueDate;
 
     @Column(nullable = false)
-    private Integer discount;
+    private Double discount;
 
     @Column(nullable = false)
-    private Integer amount;
+    private Double amount;
 
     @Column(nullable = false)
     private String meterNumber;
